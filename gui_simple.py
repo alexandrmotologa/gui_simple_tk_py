@@ -2,6 +2,7 @@ import tkinter as tk
 import json
 import requests
 from tkinter import messagebox
+from tkinter import Menu
 
 
 class Application(tk.Frame):
@@ -10,7 +11,13 @@ class Application(tk.Frame):
         self.master = master
         self.grid()
 
-        self.hello_label = tk.Label(root, text="Welcome to IP INFO APP!", font =('arial', 16, 'bold'), fg='green', bg='#10a0bc', relief='solid', width=38, height=2)
+        menu = Menu(root)
+        new_item = Menu(menu, tearoff=0)
+        new_item.add_command(label='Exit', command=self.master.destroy)
+        menu.add_cascade(label='Option', menu=new_item)
+        root.config(menu=menu)
+
+        self.hello_label = tk.Label(root, text="Welcome to IP INFO APP!", font =('arial', 16, 'bold'), fg='green', bg='#10a0bc', relief='solid', width=38, height=3)
         self.hello_label.grid(row=0,column=0, columnspan=3)
         self.lbl = tk.Label(root, text="Enter an IP or DOMAIN name")
         self.lbl.grid(column=0, row=1)
@@ -25,18 +32,19 @@ class Application(tk.Frame):
         self.all_info.grid(column=0, row=3, columnspan=3, pady=20)
 
     def clearAllInfo(self):
-        self.all_info['text'] = ""
-        self.result['text'] = ""
-        self.clear_btn.destroy()
+        try:
+            self.all_info['text'] = ""
+            self.result['text'] = ""
+            self.clear_btn.destroy()
+        except :
+            pass
 
     def inputDomain(self):
         query = self.inp_main.get()
         if len(query.strip()) == 0:
             messagebox.showerror("Error", "Error... Try Again... ENTER IP or DOMAIN name")
             self.inp_main.delete(first=0, last=100)
-            self.result.destroy()
-            self.result = tk.Label(root)
-            self.result.grid(column=0, row=2, columnspan=3)
+            self.clearAllInfo()
 
         if len(query.strip()) != 0:
             endpoint = f"http://ip-api.com/json/{query}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,zip,lat,lon,timezone,currency,isp,org,as,query"
@@ -62,10 +70,7 @@ class Application(tk.Frame):
             else:
                 messagebox.showerror("Error", "Error... Try Again... ENTER IP or DOMAIN name")
                 self.inp_main.delete(first=0, last=100)
-                self.result.destroy()
-                self.result = tk.Label(root)
-                self.result.grid(column=0, row=2, columnspan=3)
-
+                self.clearAllInfo()
 
 
 root = tk.Tk()
